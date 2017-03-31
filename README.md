@@ -1,11 +1,11 @@
 # snowBridge
 
-This is an application written in Flask.
+This is an application written in Python.
 
 Installation:
-git clone https://github.com/xod442/imcServiceNow.git
+git clone https://github.com/xod442/imcServiceNow2.git
 
-Change directory to the imcServiceNow folder
+Change directory to the imcServiceNow2 folder
 look at the requirements.txt file and verify you have the necessary
 python libraries installed.
 
@@ -13,13 +13,22 @@ python libraries installed.
 pip install -r requirements.txt (must have pip installed, if not:
 sudo apt-get install python-pip
 
-Start the application by issuing : python views.py
+Start the application by issuing : python view.py
 
-The flask application will launch and can be access at:
+This application is currently non graphical. At this time you
+must edit the views.py file and add you own credentials manually.
 
-http://hostname:5000 - app runs on port 5000.
+Sorry, working on making it pretty.....
 
-Enter the login credentials, Service Now Instance and ip address for your
-Service Now instance and IMC.
+Lokk for these variables and change as required.
+
+You will need you own instance of Service Now and and HPE IMC server.
+
+imc_user = "admin"
+imc_passwd = "admin"
+imc_host = "10.132.0.15"
+snow_user = "admin"
+snow_passwd = "xxxxxxxxxxxx"
+instance = "xxxxxxxxxxxx"
 
 Initial Release - Bi-Directional alarm management
