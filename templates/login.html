@@ -1,0 +1,58 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block title %}snowBridge{% endblock %}
+
+
+{% include 'navbar.html' %}
+
+{% block content %}
+
+<h3> Auto Domain Deploy</h3>
+
+<div class="container">
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+<ul class="flashes">
+    {% for message in messages %}
+    <p style=  "color:#ff0000;">
+    <li>{{ message}}</li>
+    {% endfor %}
+
+</ul>
+
+{% endif %}
+
+{% endwith %}
+
+
+
+
+<div class="jumbotron home-jumbo">
+  <h3> Enter System Credentials </h3>
+  <form action = "/login" method = "post">
+
+    <hr>
+    <p>Service Now Instance id: <input type=text  id="inst_id" class="form-control" placeholder="Instance Id"  name="instance"></p>
+    <p>Service Now User: <input type=text  id="snow_user" class="form-control" placeholder="Service Now User"  name="snow_user"></p>
+    <p>DCN Password: <input type="password" id="snow_pass" class="form-control" placeholder="Password" required name="snow_passwd"></p>
+
+    <br>
+    <hr>
+    <p>IMC Host IP: <input type=text  id="imc_host" class="form-control" placeholder="10.1.1.1"  name="imc_host"></p>
+    <p>IMC User: <input type=text  id="imc_user" class="form-control" placeholder="IMC User Id"  name="imc_user"></p>
+    <p>IMC Password: <input type="password" id="imc_passwd" class="form-control" placeholder="Password" required name="imc_passwd"></p>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Activate Bridge</button>
+  </form>
+</div>
+
+</div>
+
+    <footer class="footer">
+            <p>Wookieware 2017</p>
+        </footer>
+
+{% endblock %}

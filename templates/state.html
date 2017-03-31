@@ -1,0 +1,31 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block title %}snowBridge{% endblock %}
+
+
+{% include 'navbar.html' %}
+
+{% block content %}
+
+ <div class="jumbotron">
+				<h3>Current System Message</h3>
+				<p class="lead"></p>
+        </div>
+
+<div class="container">
+
+
+<p> Review current system message window below </p>
+    <textarea name="varfile" cols=60 rows= 20>{{ state }}</textarea>
+
+    </div>
+
+
+
+
+    <footer class="footer">
+            <p>Wookieware 2017</p>
+        </footer>
+
+{% endblock %}

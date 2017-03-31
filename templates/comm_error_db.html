@@ -1,0 +1,47 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block title %}snowBridge Communication Error{% endblock %}
+
+
+{% include 'navbar.html' %}
+
+{% block content %}
+
+ <div class="jumbotron">
+				<h3>Communication Error</h3>
+				<p class="lead"></p>
+        </div>
+
+<div class="container">
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+<ul class="flashes">
+    {% for message in messages %}
+    <p style=  "color:#ff0000;">
+    <li>{{ message}}</li>
+    {% endfor %}
+
+</ul>
+
+{% endif %}
+
+{% endwith %}
+
+
+    </div>
+
+
+<h2>Communication failed to local database...vars below</h2>
+
+{{ vars }}
+
+
+    <footer class="footer">
+            <p>Wookieware 2017</p>
+        </footer>
+
+{% endblock %}
