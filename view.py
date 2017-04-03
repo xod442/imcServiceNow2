@@ -19,7 +19,7 @@ imc_passwd = "admin"
 imc_host = "10.132.0.15"
 snow_user = "admin"
 snow_passwd = "Grape123!"
-instance = "dev30543"
+instance = "dev32384"
 url = 'https://'+instance+'.service-now.com/api/now/table/incident'
 
 # Configuring a connection to the VSD API
@@ -67,41 +67,10 @@ while True:
             print alarm
             write_local_db(alarm, snow_return, snow_number)
 
-        # Step two: Check if the incident has been acknowledged on IMC
-        # Initially, userAckType = 0, if the incoming RT alarm does not match
-        # That is because it has been acknowledged We never see recovered alarms inthe
-        # Real time alarms.
-        print "step 2...comparing ack from IMC rt alarm with the local db"
-        check = Imc_alarm_ids.query.filter_by(alarm_id=alarm['id']).all()
-        print check[0].userAckType
-        print alarm['userAckType']
 
-        if alarm['userAckType'] != check[0].userAckType:
-            print "Alarm acknowledged on IMC....updating local database and Service Now"
-            #The realtime alarm has been acknowledged! , no other possibility
-            alarm['userAckType'] ="1"
-            # Save local database
-            update_local_db(alarm)
-            # Get the snow incident read values
-            snow_url = url+'?number='+check[0].snow_number
-            print "This is a suspicious snow_url %s" % snow_url
-            # snowObject is a dict of the snow incident
-            snowObject = get_snow(snow_url, snow_user, snow_passwd)
-            # get the service now system identifier for the incident, needed to update record
-            sys_id = snowObject['result'][0]['sys_id']
-            # set the "In-Progress" status on the service now incident 1 = "In Process"
-            alarm['state'] = "2"
-            # Set the URL for the PUT
-            snow_url = url+'/'+sys_id
-            # Update service now incident record
-            snowObject = ack_snow(alarm, snow_url, snow_user, snow_passwd)
-
-        # Step three: Check the status of the snow ticket
-        # Alarms in the database will no longer be processed by the realtime loop (steps 1-2)
-        # if the are acknowleded in IMC.
-        # IMC takes them out of the real time alarms.
-        # This step just cleans up the two systems.
-
+        # Step Two: Check the status of the snow ticket. If it has been acknowledged
+        # or closed in snow, update IMC and local database.
+        # Adjust the acktype to sync with snow levels 1 = new, 2 = In Porocess, 7 = closed
 
         print "Comparing Service Now Incident with IMC ack status......."
 
@@ -118,7 +87,16 @@ while True:
     print
     result = process_imc_recover(url, snow_user, snow_passwd, auth)
 
-    c = c + 1
+    # Delete all local db alarms that are closed with a value of 7 userAckType
+    local_alarms = Imc_alarm_ids.query.all()
+    for a in local_alarms:
+        # Returns a list of fields whare the alarm id matches query
+        check = Imc_alarm_ids.query.filter_by(alarm_id=a.alarm_id).all()
+        if check[0].userAckType == "7":
+            db.session.delete(check[0])
+            db.session.commit()
+
+
     print "snowBridge has completed %s Service Now and IMC sync cycles" % c
     print
     print "=======S=N=O=W==B=R=I=D=G=E====SNOW/IMC===ALARM=SYNC================"
@@ -127,4 +105,6 @@ while True:
     print
     print
     print
-    time.sleep(3000)
+
+    c = c + 1
+    time.sleep(60)

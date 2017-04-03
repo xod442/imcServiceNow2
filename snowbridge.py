@@ -193,7 +193,7 @@ def update_local_db(alarm):
     """
     get_alarm = Imc_alarm_ids.query.filter_by(alarm_id=alarm['id']).first()
     get_alarm.userAckType = alarm['userAckType']
-    get_alarm.userAckUserName = alarm['userAckUserName']
+    get_alarm.userAckUserName = "admin"
     db.session.commit()
 
 
@@ -213,6 +213,8 @@ def get_alarm_status(alarm, auth):
     if alarm_details['ackStatus'] == '1' and alarm_details['recStatus'] == "0":
         alarm['userAckType'] = "1"
     if alarm_details['ackStatus'] == '1' and alarm_details['recStatus'] == "1":
+        alarm['userAckType'] = "7"
+    if alarm_details['ackStatus'] == '0' and alarm_details['recStatus'] == "1":
         alarm['userAckType'] = "7"
 
     return alarm['userAckType']

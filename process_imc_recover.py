@@ -148,12 +148,6 @@ def process_imc_recover(url,snow_user,snow_passwd,auth):
             # Save local database
             update_local_db(alarm)
 
-    # Delete all alarms that are closed with a value of 7 userAckType
-    local_alarms = Imc_alarm_ids.query.all()
-    for a in local_alarms:
-        check = Imc_alarm_ids.query.filter_by(alarm_id=a.alarm_id).all()
-        action = check[0]
-        #db.session.delete(check)
-        #db.session.commit()
+
 
     return action
