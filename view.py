@@ -18,8 +18,8 @@ imc_user = "admin"
 imc_passwd = "admin"
 imc_host = "10.132.0.15"
 snow_user = "admin"
-snow_passwd = "Grape123!"
-instance = "dev32384"
+snow_passwd = "xxxxxxxx"
+instance = "xxxxxxx"
 url = 'https://'+instance+'.service-now.com/api/now/table/incident'
 
 # Configuring a connection to the VSD API
