@@ -19,8 +19,8 @@ imc_user = "admin"
 imc_passwd = "admin"
 imc_host = "10.132.0.15"
 snow_user = "admin"
-snow_passwd = "Grape123!"
-instance = "dev32384"
+snow_passwd = "xxxxxx!"
+instance = "dxxxxxxx4"
 url = 'https://'+instance+'.service-now.com/api/now/table/incident'
 dev_url = 'https://'+instance+'.service-now.com/api/now/table/u_imcdevices'
 
