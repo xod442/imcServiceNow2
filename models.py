@@ -88,3 +88,44 @@ class Elogfile(db.Model):
 
     def __repr__(self):
         return '<Elogfile %r>' % self.e_time
+
+
+#Logfile table
+class Imc_devices(db.Model):
+    imc_id = db.Column(db.Integer,primary_key=True)
+    label = db.Column(db.String(25))
+    ip = db.Column(db.String(20))
+    mask = db.Column(db.String(20))
+    contact = db.Column(db.String(50))
+    location = db.Column(db.String(100))
+    sysOid = db.Column(db.String(30))
+    typeName = db.Column(db.String(20))
+    snow_return = db.Column(db.String(5))
+
+
+
+    def __init__(self,
+                imc_id,
+                label,
+                ip,
+                mask,
+                contact,
+                location,
+                sysOid,
+                typeName,
+                snow_return):
+
+        self.imc_id = imc_id
+        self.label = label
+        self.ip = ip
+        self.mask = mask
+        self.contact = contact
+        self.location = location
+        self.sysOid = sysOid
+        self.typeName = typeName
+        self.snow_return = snow_return
+
+
+
+    def __repr__(self):
+        return '<Imc_devices %r>' % self.imc_id

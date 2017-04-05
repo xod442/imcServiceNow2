@@ -2,7 +2,7 @@ import time
 from flask import Flask, request, render_template, redirect, url_for, flash, session, send_file
 from flask.ext.bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Imc_alarm_ids
+from models import db, Imc_alarm_ids, Imc_devices
 from settings import APP_STATIC
 import os
 from flask import Flask, request, redirect, url_for
@@ -11,6 +11,7 @@ from snowbridge import *
 import requests
 from pyhpeimc.auth import *
 from pyhpeimc.plat.alarms import *
+from pyhpeimc.plat.device import *
 from reconcile import *
 from process_imc_recover import *
 
@@ -18,9 +19,10 @@ imc_user = "admin"
 imc_passwd = "admin"
 imc_host = "10.132.0.15"
 snow_user = "admin"
-snow_passwd = "xxxxxxxx"
-instance = "xxxxxxx"
+snow_passwd = "Grape123!"
+instance = "dev32384"
 url = 'https://'+instance+'.service-now.com/api/now/table/incident'
+dev_url = 'https://'+instance+'.service-now.com/api/now/table/u_imcdevices'
 
 # Configuring a connection to the VSD API
 
@@ -79,7 +81,7 @@ while True:
         print result
 
 
-    # Now that all the realtime alarms have been processes. Look in the local db and
+    # Step Three:  Now that all the realtime alarms have been processes. Look in the local db and
     # check for realtime alarms that have been recovered in IMC. They will not be
     # processed in the above loop as it it only for realtime alarms, not recovered.
     print "Looking for any RT alarms that have been recovered by IMC....updating"
@@ -87,7 +89,9 @@ while True:
     print
     result = process_imc_recover(url, snow_user, snow_passwd, auth)
 
+    # Step Four:
     # Delete all local db alarms that are closed with a value of 7 userAckType
+    print "Removing closed alarms from the local snowbridge database"
     local_alarms = Imc_alarm_ids.query.all()
     for a in local_alarms:
         # Returns a list of fields whare the alarm id matches query
@@ -95,6 +99,45 @@ while True:
         if check[0].userAckType == "7":
             db.session.delete(check[0])
             db.session.commit()
+    # Step Five:
+    # Sync IMC devices to service now
+    print "Getting devices from IMC`"
+    dev_list = get_all_devs(auth.creds,auth.url,network_address=None)
+    c = 0
+    print "snowBridge has is now updating devices between IMC and Service Now %s" % c
+    print
+    print "=======S=N=O=W==B=R=I=D=G=E====SNOW/IMC===Add Device================"
+    print "|               Adding device..............                        |"
+    print "+------------------------------------------------------------------+"
+    print
+    print
+    print
+    # snow_return = '400'
+    for i in dev_list:
+
+        check = Imc_devices.query.filter_by(imc_id=i['id']).all()
+
+        # If no record, device to snow and add device to local db
+        if check == []:
+            print "Device not in local snowbridge database....adding...sending to snow"
+            # Create new device in Service Now
+
+            snowObject = load_snow(i, dev_url, snow_user, snow_passwd)
+
+            # Returns a HTML return code
+            print snowObject
+            print type(snowObject)
+
+
+            print "After the device is added to SNOW this is the return %s,  " % (snowObject)
+            # Write to local database
+            #print i
+            write_device_db(i, snowObject)
+            print '.....added'
+
+    c = c + 1
+    print "......All Devices are sync'd"
+    time.sleep(2)
 
 
     print "snowBridge has completed %s Service Now and IMC sync cycles" % c

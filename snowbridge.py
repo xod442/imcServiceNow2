@@ -34,7 +34,7 @@ import time
 from flask import Flask, request, render_template, redirect, url_for, flash, session, send_file
 from flask.ext.bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Imc_alarm_ids, Elogfile
+from models import db, Imc_alarm_ids, Elogfile, Imc_devices
 import json
 import requests
 from datetime import datetime
@@ -157,6 +157,43 @@ def ack_snow(update, snow_url, snow_user, snow_passwd):
 
     return response.status_code
 
+def load_snow(device, snow_url, snow_user, snow_passwd):
+    """
+    function takes alarm which is a python list and builds record for new snow incident
+    :param device: a python dict
+    :param snow_url: A URL for the service now table
+    :param snow_user: A str for the Service Now instance
+    :param snow_passwd: A str for the Service Now instance
+    :return: response.status_code for Service Now
+    :rtype: int or string value of the return code
+    >>> from snowbridge import *
+    >>> snowObject = post_snow({device},'https://'devXXXXX.service-now.com/api/now/table/incident','admin','admin')
+    >>> assert response.status_code == 201
+    """
+    data = {}           # A dictionary to build post information
+    varz = []           # A list for errors
+
+    # Build dictionary for Service Now incedent report
+    data['u_imc_id'] = device['id'].encode('utf-8')
+    data['u_label'] = device['label'].encode('utf-8')
+    data['u_ip'] = device['ip'].encode('utf-8')
+    data['u_mask'] = device['mask'].encode('utf-8')
+    data['u_contact'] = device['contact'].encode('utf-8')
+    data['u_location'] = device['location'].encode('utf-8')
+    data['u_sysoid'] = device['sysOid'].encode('utf-8')
+    data['u_typename'] = device['typeName'].encode('utf-8')
+    # Convert dict to a string for post
+    data = str(data)
+
+    headers = {"Content-Type":"application/json","Accept":"application/json"}
+
+    # Do the HTTP POST to Snow
+    response = requests.post(snow_url, auth=(snow_user, snow_passwd), headers=headers ,data=data)
+    if response.status_code != 201:
+        #print "This is the response code for snow %s for device %s" % (response.status_code, data['ip'])
+        print response.status_code
+    return response.status_code
+
 
 def write_local_db(alarm, snow_return, snow_number):
     """
@@ -195,6 +232,32 @@ def update_local_db(alarm):
     get_alarm.userAckType = alarm['userAckType']
     get_alarm.userAckUserName = "admin"
     db.session.commit()
+
+def write_device_db(device, snow_return):
+    """
+    function takes a mix a variables from snow and IMC to create a local SQL Alchemy db record
+    :param alarm: a python dict
+    :param snow_return: the return_code from performing a snow post
+    >>> from snowbridge import *
+    >>> write_device_db({device}, snow_return)
+    >>> assert 'device['imc_id']
+    """
+
+    check = Imc_devices.query.filter_by(imc_id=device['id']).all()
+    if check:
+        #flash('Database Error...duplicate records', 'error')
+        e_time = str(datetime.now()).replace(' ','')
+        e_msg = 'Duplicate device ID when writing to local database'
+        record = Elogfile(e_time,e_msg)
+        db.session.add(record)
+        db.session.commit()
+        #return render_template('comm_error_db.html', vars = error_msg)
+        print e_msg
+    else:
+        device = Imc_devices(device['id'],device['label'],device['ip'],
+        device['mask'],device['contact'],device['location'],device['sysOid'],device['typeName'],snow_return)
+        db.session.add(device)
+        db.session.commit()
 
 
 def get_alarm_status(alarm, auth):

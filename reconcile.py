@@ -37,6 +37,7 @@ def reconcile(alarm,url,snow_user,snow_passwd,auth):
     data = get_snow(snow_url, snow_user, snow_passwd)
     # data['result'][0]['state'] = snow incident status 1-New,2-In process, or 7-Closed
     s = data['result'][0]['state']
+
     # Get the status of the IMC alarm using get_alarm_status from snowbridge
     i = get_alarm_status(alarm, auth)
 
