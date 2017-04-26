@@ -52,8 +52,8 @@ imc_user = "admin"
 imc_passwd = "admin"
 imc_host = "10.132.0.15"
 snow_user = "admin"
-snow_passwd = "xxxxxx!"
-instance = "dxxxxxxx4"
+snow_passwd = "Grape123!"
+instance = "dev32384"
 url = 'https://'+instance+'.service-now.com/api/now/table/incident'
 dev_url = 'https://'+instance+'.service-now.com/api/now/table/u_imcdevices'
 
@@ -82,10 +82,12 @@ while True:
     print status
     for alarm in alarms:
         # Step one. Look for the alarm in the local data base
-        print "Step 1: checking local database"
+        #print "Step 1: checking local database"
         check = Imc_alarm_ids.query.filter_by(alarm_id=alarm['id']).all()
+        print check[0].userAckType
+        print '================================================================'
         # adjust the acktype to sync with snow levels 1 = new, 2 = In Porocess, 7 = closed
-
+        '''
         # If no record, open snow incident and add alarm to local db
         if check == []:
             print "IMC Real Time alarm not in database"
@@ -112,8 +114,8 @@ while True:
         # Reconcile snow to imc
         result = reconcile(alarm, url, snow_user, snow_passwd, auth)
         print result
-
-
+        '''
+    '''
     # Step Three:  Now that all the realtime alarms have been processes. Look in the local db and
     # check for realtime alarms that have been recovered in IMC. They will not be
     # processed in the above loop as it it only for realtime alarms, not recovered.
@@ -184,3 +186,4 @@ while True:
 
     c = c + 1
     time.sleep(60)
+    '''
