@@ -1,0 +1,6 @@
+delete the local imc snowbridge database
+
+run python make_db.py to build a fresh local snowbridge database
+
+
+run python test_device_model.py

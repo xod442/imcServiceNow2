@@ -21,7 +21,7 @@ imc_host = "10.1.8.107"
 snow_user = "admin"
 snow_passwd = "Grape123!"
 instance = "dev26166"
-snow_url = 'https://'+instance+'.service-now.com/api/now/table/u_imc_devices'
+snow_url = 'https://'+instance+'.service-now.com/api/now/table/u_imcdevices'
 
 # Configuring a connection to the VSD API
 
@@ -42,30 +42,12 @@ while True:
     print
     print
     # snow_return = '400'
-    for i in dev_list:
-
-
-        check = Imc_devices.query.filter_by(imc_id=i['id']).all()
-        print 'This is the check of the local database: %s' % (check)
-
-        # If no record, device to snow and add device to local db
-        if check == []:
-            print "Device not in local snowbridge database....adding...sending to snow"
-            # Create new device in Service Now
-
-            snowObject = load_snow(i, snow_url, snow_user, snow_passwd)
-
-            # Returns a HTML return code
-            print snowObject
-            print type(snowObject)
-
-
-            print "After the device is added to SNOW this is the return %s,  " % (snowObject)
-            # Write to local database
-            #print i
-            write_device_db(i, snowObject)
-            print '.....added'
-
-    c = c + 1
-    print "......All Devices are sync'd"
+    while (c < len(dev_list)):
+        try:
+            db.session.delete(dev_list[c])
+            db.session.commit()
+        except:
+            db.session.rollback()
+        c = c + 1
+    print "......All Devices are deleted"
     time.sleep(2)
